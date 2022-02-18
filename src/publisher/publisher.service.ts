@@ -1,13 +1,12 @@
-import { PublisherDto } from 'src/dto/publisher.dto';
-
 import {
   HttpException,
   HttpStatus,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { Knex } from 'knex';
 import { InjectModel } from 'nest-knexjs';
+import { Knex } from 'knex';
+import { PublisherDto } from 'src/dto/publisher.dto';
 
 @Injectable()
 export class PublisherService {
@@ -26,7 +25,7 @@ export class PublisherService {
         phone: createPublisherDto.phone,
       });
 
-      return `Publisher added`;
+      return { publisher };
     } catch (err) {
       throw new HttpException(err, HttpStatus.BAD_REQUEST);
     }

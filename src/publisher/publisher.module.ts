@@ -4,6 +4,6 @@ import { PublisherController } from './publisher.controller';
 
 @Module({
   providers: [PublisherService],
-  controllers: [PublisherController]
+  controllers: [PublisherController],
 })
 export class PublisherModule {}
