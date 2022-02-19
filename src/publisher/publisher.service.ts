@@ -27,7 +27,7 @@ export class PublisherService {
 
       return { publisher };
     } catch (err) {
-      throw new HttpException(err, HttpStatus.BAD_REQUEST);
+      throw new HttpException('Incorrect data', HttpStatus.BAD_REQUEST);
     }
   }
 
@@ -52,7 +52,7 @@ export class PublisherService {
 
       return { publisher };
     } catch (err) {
-      throw new HttpException(err, HttpStatus.BAD_REQUEST);
+      throw new HttpException('Incorrect data', HttpStatus.BAD_REQUEST);
     }
   }
 

@@ -3,6 +3,7 @@ import { KnexModule } from 'nest-knexjs';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { PublisherModule } from './publisher/publisher.module';
+import { GameModule } from './game/game.module';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { PublisherModule } from './publisher/publisher.module';
       },
     }),
     PublisherModule,
+    GameModule,
   ],
   controllers: [AppController],
   providers: [AppService],

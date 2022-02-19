@@ -7,7 +7,7 @@ export class PublisherDto {
 
   @IsNotEmpty()
   @IsNumber()
-  siret: string;
+  siret: number;
 
   @IsNotEmpty()
   @IsString()

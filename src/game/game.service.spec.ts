@@ -1,24 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { PublisherDto } from 'src/dto/publisher.dto';
-import { PublisherController } from './publisher.controller';
-import { PublisherService } from './publisher.service';
-
-jest.mock('knex', () => {
-  const fn = () => {
-    return {
-      select: jest.fn().mockReturnThis(),
-      from: jest.fn().mockReturnThis(),
-      where: jest.fn().mockReturnThis(),
-      first: jest.fn().mockReturnThis(),
-      insert: jest.fn().mockReturnThis(),
-      raw: jest.fn().mockReturnThis(),
-      then: jest.fn(function (done) {
-        done(null);
-      }),
-    };
-  };
-  return fn;
-});
+import { GameDto } from 'src/dto/game.dto';
+import { GameController } from './game.controller';
+import { GameService } from './game.service';
 
 class ApiServiceMock {
   findAll() {
@@ -30,7 +13,7 @@ class ApiServiceMock {
   findOne(id: number) {
     return { id };
   }
-  update(id: number, dto: PublisherDto) {
+  update(id: number, dto: GameDto) {
     return { dto };
   }
   remove(id: number) {
@@ -38,21 +21,21 @@ class ApiServiceMock {
   }
 }
 
-describe('PublisherService', () => {
-  let service: PublisherService;
+describe('GameService', () => {
+  let service: GameService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         {
-          provide: PublisherService,
+          provide: GameService,
           useClass: ApiServiceMock,
         },
       ],
-      controllers: [PublisherController],
+      controllers: [GameController],
     }).compile();
 
-    service = module.get<PublisherService>(PublisherService);
+    service = module.get<GameService>(GameService);
   });
 
   describe('When findAll is called', () => {
@@ -63,7 +46,7 @@ describe('PublisherService', () => {
 
   describe('When create is called', () => {
     it('should return expected response', async () => {
-      expect(service.create(new PublisherDto())).toEqual({});
+      expect(service.create(new GameDto())).toEqual({});
     });
   });
 
@@ -75,7 +58,7 @@ describe('PublisherService', () => {
 
   describe('When update is called', () => {
     it('should return expected response', async () => {
-      expect(service.update(1, new PublisherDto())).toEqual({
+      expect(service.update(1, new GameDto())).toEqual({
         dto: {},
       });
     });
