@@ -4,7 +4,6 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { PublisherModule } from './publisher/publisher.module';
 import { GameModule } from './game/game.module';
-
 @Module({
   imports: [
     KnexModule.forRoot({
@@ -13,7 +12,7 @@ import { GameModule } from './game/game.module';
         version: '5.7',
         useNullAsDefault: true,
         connection: {
-          host: '127.0.0.1',
+          host: process.env.MYSQL_HOST || '127.0.0.1',
           user: 'root',
           password: 'root',
           database: 'nestjs-typescript',
