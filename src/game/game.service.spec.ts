@@ -1,12 +1,13 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { PublisherModel } from 'src/models/publisher.model';
 import { GameController } from './game.controller';
 import { GameService } from './game.service';
 
 const queryStub = jest.fn();
+const transactionStub = jest.fn();
 
 const GameModelSpy = {
   query: queryStub,
+  transaction: transactionStub,
 };
 let game;
 
@@ -74,34 +75,27 @@ describe('GameService', () => {
           discountDate.setMonth(discountDate.getMonth() - 15);
           game.releaseDate = discountDate.toString();
           const findByIdStub = jest.fn().mockReturnValue(game);
-          const updateAndFetchByIdStub = jest.fn();
           queryStub.mockReturnValue({
             findById: findByIdStub,
-            updateAndFetchById: updateAndFetchByIdStub,
           });
           expect(await service.findOne(1)).toEqual(game);
           expect(findByIdStub).toHaveBeenCalledWith(1);
-          expect(updateAndFetchByIdStub).toHaveBeenCalledWith(2, {
-            discounted: true,
-            price: 128,
-          });
+          expect(transactionStub).toHaveBeenCalled();
         });
       });
 
       describe('When game has a release date older than 18 months', () => {
         it('should be removed', async () => {
-          const deleteByIdStub = jest.fn();
           const deletedDate = new Date();
           deletedDate.setMonth(deletedDate.getMonth() - 19);
           game.releaseDate = deletedDate.toString();
           const findByIdStub = jest.fn().mockReturnValue(game);
           queryStub.mockReturnValue({
             findById: findByIdStub,
-            deleteById: deleteByIdStub,
           });
           expect(await service.findOne(1)).toEqual(game);
           expect(findByIdStub).toHaveBeenCalledWith(1);
-          expect(deleteByIdStub).toHaveBeenCalledWith(game.id);
+          expect(transactionStub).toHaveBeenCalled();
         });
       });
     });
