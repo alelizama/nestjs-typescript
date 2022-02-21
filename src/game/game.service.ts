@@ -11,9 +11,13 @@ import { GameModel } from '../../src/models/game.model';
 
 @Injectable()
 export class GameService {
-  constructor(@Inject('GameModel') private modelClass: ModelClass<GameModel>) {}
+  constructor(
+    @Inject('GameModel') private modelClass: ModelClass<GameModel>,
+    @Inject('PublisherModel')
+    private modelPublisherClass: ModelClass<PublisherModel>,
+  ) {}
 
-  checkGameExists(game) {
+  checkGameExists(game: any) {
     if (!game) {
       throw new NotFoundException('Game does not exist');
     }
@@ -32,11 +36,12 @@ export class GameService {
     }
   }
 
-  monthDiff(releaseDate) {
+  monthDiff(releaseDate: string) {
     let months;
     const currentDate = new Date();
-    months = (currentDate.getFullYear() - releaseDate.getFullYear()) * 12;
-    months -= releaseDate.getMonth();
+    const date = new Date(releaseDate);
+    months = (currentDate.getFullYear() - date.getFullYear()) * 12;
+    months -= date.getMonth();
     months += currentDate.getMonth();
     return months <= 0 ? 0 : months;
   }
@@ -56,11 +61,12 @@ export class GameService {
   }
 
   async findAll() {
-    const game = await this.modelClass.query();
+    let game = await this.modelClass.query();
     game.forEach(async (item) => {
       await this.verifyReleaseDate(item);
     });
-    return this.modelClass.query();
+    game = await this.modelClass.query();
+    return game;
   }
 
   async create(props: Partial<GameModel>) {
@@ -93,16 +99,18 @@ export class GameService {
 
     const game = await this.modelClass.query().findById(id);
     this.checkGameExists(game);
-    const publisher = await PublisherModel.query().findById(game.publisher);
+    const publisher = await this.modelPublisherClass
+      .query()
+      .findById(game.publisher);
     if (!publisher) {
-      throw new NotFoundException(`No Publisher for Game ${id}`);
+      throw new NotFoundException(`No Publisher for this game`);
     }
     return publisher;
   }
 
   async remove(id: number) {
     this.checkGameExists(id);
-    await this.modelClass.query().delete().where({ id });
+    await this.modelClass.query().deleteById(id);
     return { message: 'Game removed' };
   }
 }

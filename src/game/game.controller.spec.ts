@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
+import { GameModel } from '../../src/models/game.model';
 import { GameController } from './game.controller';
 import { GameService } from './game.service';
-import { GameDto } from '../dto/game.dto';
 
 describe('GameController', () => {
   let controller: GameController;
@@ -28,7 +28,7 @@ describe('GameController', () => {
 
   describe('When calling create', () => {
     it('should return object', () => {
-      expect(typeof controller.create(new GameDto())).toEqual('object');
+      expect(typeof controller.create(new GameModel())).toEqual('object');
     });
   });
 
@@ -52,7 +52,7 @@ describe('GameController', () => {
 
   describe('When calling update', () => {
     it('should return object', () => {
-      expect(typeof controller.update('1', new GameDto())).toEqual('object');
+      expect(typeof controller.update('1', new GameModel())).toEqual('object');
     });
   });
 

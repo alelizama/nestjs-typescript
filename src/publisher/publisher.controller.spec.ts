@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
+import { PublisherModel } from '../../src/models/publisher.model';
 import { PublisherController } from './publisher.controller';
 import { PublisherService } from './publisher.service';
-import { PublisherDto } from '../dto/publisher.dto';
 
 describe('PublisherController', () => {
   let controller: PublisherController;
@@ -27,7 +27,7 @@ describe('PublisherController', () => {
 
   describe('When calling create', () => {
     it('should return object', () => {
-      expect(typeof controller.create(new PublisherDto())).toEqual('object');
+      expect(typeof controller.create(new PublisherModel())).toEqual('object');
     });
   });
 
@@ -45,7 +45,7 @@ describe('PublisherController', () => {
 
   describe('When calling update', () => {
     it('should return object', () => {
-      expect(typeof controller.update('1', new PublisherDto())).toEqual(
+      expect(typeof controller.update('1', new PublisherModel())).toEqual(
         'object',
       );
     });
