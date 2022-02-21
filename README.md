@@ -41,11 +41,15 @@ $ npm install
 $ docker-compose -f docker-compose-database.yml up
 $ npm run start
 
-# prod
+# prod (wait until database is running)
 $ docker-compose up
 ```
 
 ## Blueprint
+```bash
+# HOST
+localhost:3000/
+```
 ### Publisher
 
 #### Get all publishers

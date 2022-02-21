@@ -61,12 +61,14 @@ export class GameService {
   }
 
   async findAll() {
-    let game = await this.modelClass.query();
-    game.forEach(async (item) => {
-      await this.verifyReleaseDate(item);
+    const game = await this.modelClass.query();
+    await this.modelClass.transaction(async () => {
+      game.forEach(async (item) => {
+        await this.verifyReleaseDate(item);
+      });
     });
-    game = await this.modelClass.query();
-    return game;
+    const gameVerified = await this.modelClass.query();
+    return gameVerified;
   }
 
   async create(props: Partial<GameModel>) {
@@ -87,7 +89,9 @@ export class GameService {
     const game = await this.modelClass.query().findById(id);
     this.checkGameExists(game);
 
-    await this.verifyReleaseDate(game);
+    await this.modelClass.transaction(async () => {
+      await this.verifyReleaseDate(game);
+    });
     const gameVerified = await this.modelClass.query().findById(id);
 
     this.checkGameExists(gameVerified);
