@@ -1,8 +1,9 @@
+import { Knex } from 'knex';
 /**
  * @param { import("knex").Knex } knex
  * @returns { Promise<void> }
  */
-exports.seed = async function (knex) {
+export async function seed(knex: Knex) {
   const discountDate = new Date();
   discountDate.setMonth(discountDate.getMonth() - 15);
 
@@ -29,4 +30,4 @@ exports.seed = async function (knex) {
       releaseDate: deletedDate,
     },
   ]);
-};
+}
