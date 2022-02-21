@@ -6,8 +6,10 @@ import {
   IsBoolean,
 } from 'class-validator';
 
-export class GameDto {
-  id: number;
+import { BaseModel } from './base.model';
+
+export class GameModel extends BaseModel {
+  static tableName = 'games';
 
   @IsNotEmpty()
   @IsString()

@@ -3,64 +3,62 @@ import {
   HttpStatus,
   Injectable,
   NotFoundException,
+  Inject,
 } from '@nestjs/common';
-import { InjectModel } from 'nest-knexjs';
-import { Knex } from 'knex';
-import { PublisherDto } from 'src/dto/publisher.dto';
+import { ModelClass } from 'objection';
+import { PublisherModel } from '../../src/models/publisher.model';
 
 @Injectable()
 export class PublisherService {
-  constructor(@InjectModel() private readonly knex: Knex) {}
+  constructor(
+    @Inject('PublisherModel') private modelClass: ModelClass<PublisherModel>,
+  ) {}
 
-  async findAll() {
-    const publisher = await this.knex.table('publisher');
-    return { publisher };
+  checkPublisherExists(game) {
+    if (!game) {
+      throw new NotFoundException('Publisher does not exist');
+    }
   }
 
-  async create(createPublisherDto: PublisherDto) {
-    try {
-      const publisher = await this.knex.table('publisher').insert({
-        name: createPublisherDto.name,
-        siret: createPublisherDto.siret,
-        phone: createPublisherDto.phone,
-      });
+  async findAll() {
+    return this.modelClass.query();
+  }
 
-      return { publisher };
+  async create(props: Partial<PublisherModel>) {
+    try {
+      await this.modelClass.query().insert(props);
+      return { message: 'Publisher created' };
     } catch (err) {
-      throw new HttpException('Incorrect data', HttpStatus.BAD_REQUEST);
+      throw new HttpException(
+        'Incorrect data provided',
+        HttpStatus.BAD_REQUEST,
+      );
     }
   }
 
   async findOne(id: number) {
-    if (!id) {
-      throw new NotFoundException(`Publisher ${id} does not exist`);
-    }
-    const publisher = await this.knex.table('publisher').where('id', id);
-    return { publisher };
+    this.checkPublisherExists(id);
+    const publisher = await this.modelClass.query().findById(id);
+    this.checkPublisherExists(publisher);
+    return publisher;
   }
 
-  async update(id: number, updatePublisherDto: PublisherDto) {
+  async update(id: number, props: Partial<PublisherModel>) {
+    this.checkPublisherExists(id);
     try {
-      const publisher = await this.knex
-        .table('publisher')
-        .where('id', id)
-        .update({
-          name: updatePublisherDto.name,
-          siret: updatePublisherDto.siret,
-          phone: updatePublisherDto.phone,
-        });
-
-      return { publisher };
+      await this.modelClass.query().updateAndFetchById(id, props);
+      return { message: 'Publisher updated' };
     } catch (err) {
-      throw new HttpException('Incorrect data', HttpStatus.BAD_REQUEST);
+      throw new HttpException(
+        'Incorrect data provided',
+        HttpStatus.BAD_REQUEST,
+      );
     }
   }
 
   async remove(id: number) {
-    if (!id) {
-      throw new NotFoundException(`Publisher ${id} does not exist`);
-    }
-    const publisher = await this.knex.table('publisher').where('id', id).del();
-    return { publisher };
+    this.checkPublisherExists(id);
+    await this.modelClass.query().deleteById(id);
+    return { message: 'Publisher removed' };
   }
 }

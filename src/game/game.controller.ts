@@ -8,15 +8,15 @@ import {
   Delete,
 } from '@nestjs/common';
 import { GameService } from './game.service';
-import { GameDto } from 'src/dto/game.dto';
+import { GameModel } from '../../src/models/game.model';
 
 @Controller('game')
 export class GameController {
   constructor(private readonly gameService: GameService) {}
 
   @Post()
-  create(@Body() createGameDto: GameDto) {
-    return this.gameService.create(createGameDto);
+  create(@Body() createGameModel: GameModel) {
+    return this.gameService.create(createGameModel);
   }
 
   @Get()
@@ -35,8 +35,8 @@ export class GameController {
   }
 
   @Put(':id')
-  update(@Param('id') id: string, @Body() updateGameDto: GameDto) {
-    return this.gameService.update(+id, updateGameDto);
+  update(@Param('id') id: string, @Body() updateGameModel: GameModel) {
+    return this.gameService.update(+id, updateGameModel);
   }
 
   @Delete(':id')

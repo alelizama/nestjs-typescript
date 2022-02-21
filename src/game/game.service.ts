@@ -1,31 +1,34 @@
 import {
   HttpException,
   HttpStatus,
+  Inject,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { InjectModel } from 'nest-knexjs';
-import { Knex } from 'knex';
-import { GameDto } from 'src/dto/game.dto';
+import { ModelClass } from 'objection';
+import { PublisherModel } from '../../src/models/publisher.model';
+import { GameModel } from '../../src/models/game.model';
 
 @Injectable()
 export class GameService {
-  constructor(@InjectModel() private readonly knex: Knex) {}
+  constructor(@Inject('GameModel') private modelClass: ModelClass<GameModel>) {}
 
-  async update(id: number, updateGameDto: any) {
+  checkGameExists(game) {
+    if (!game) {
+      throw new NotFoundException('Game does not exist');
+    }
+  }
+
+  async update(id: number, props: Partial<GameModel>) {
+    this.checkGameExists(id);
     try {
-      const game = await this.knex.table('games').where('id', id).update({
-        title: updateGameDto.title,
-        price: updateGameDto.price,
-        publisher: updateGameDto.publisher,
-        tags: updateGameDto.tags,
-        releaseDate: updateGameDto.releaseDate,
-        discounted: updateGameDto.discounted,
-      });
-
-      return game;
+      await this.modelClass.query().updateAndFetchById(id, props);
+      return { message: 'Game updated' };
     } catch (err) {
-      throw new HttpException('Incorrect data', HttpStatus.BAD_REQUEST);
+      throw new HttpException(
+        'Incorrect data provided',
+        HttpStatus.BAD_REQUEST,
+      );
     }
   }
 
@@ -38,74 +41,68 @@ export class GameService {
     return months <= 0 ? 0 : months;
   }
 
-  async verifyReleaseDate(game: any[]) {
-    return game.forEach((item) => {
-      const gameObject = <GameDto>(<unknown>item);
-      const month = this.monthDiff(gameObject.releaseDate);
-      if (!gameObject.discounted && month > 11 && month < 19) {
-        const newPrice = gameObject.price - gameObject.price * 0.2;
-        return this.update(gameObject.id, {
-          price: newPrice,
-          discounted: true,
-        });
-      }
-      if (month > 18) {
-        return this.remove(gameObject.id);
-      }
-    });
+  async verifyReleaseDate(game: GameModel) {
+    const month = this.monthDiff(game.releaseDate);
+    if (!game.discounted && month > 11 && month < 19) {
+      const newPrice = game.price - game.price * 0.2;
+      return this.update(game.id, {
+        price: newPrice,
+        discounted: true,
+      });
+    }
+    if (month > 18) {
+      return this.remove(game.id);
+    }
   }
 
   async findAll() {
-    const game = await this.knex.table('games');
-    this.verifyReleaseDate(game);
-    const gameVerified = await this.knex.table('games');
-    return gameVerified;
+    const game = await this.modelClass.query();
+    game.forEach(async (item) => {
+      await this.verifyReleaseDate(item);
+    });
+    return this.modelClass.query();
   }
 
-  async create(createGameDto: GameDto) {
+  async create(props: Partial<GameModel>) {
     try {
-      const game = await this.knex.table('games').insert({
-        title: createGameDto.title,
-        price: createGameDto.price,
-        publisher: createGameDto.publisher,
-        tags: createGameDto.tags,
-        releaseDate: createGameDto.releaseDate,
-      });
-
-      return game;
+      await this.modelClass.query().insert(props);
+      return { message: 'Game created' };
     } catch (err) {
-      throw new HttpException('Incorrect data', HttpStatus.BAD_REQUEST);
+      throw new HttpException(
+        'Incorrect data provided',
+        HttpStatus.BAD_REQUEST,
+      );
     }
   }
 
   async findOne(id: number) {
-    if (!id) {
-      throw new NotFoundException(`Game ${id} does not exist`);
-    }
-    const game = await this.knex.table('games').where('id', id);
-    this.verifyReleaseDate(game);
-    const gameVerified = await this.knex.table('games').where('id', id);
+    this.checkGameExists(id);
+
+    const game = await this.modelClass.query().findById(id);
+    this.checkGameExists(game);
+
+    await this.verifyReleaseDate(game);
+    const gameVerified = await this.modelClass.query().findById(id);
+
+    this.checkGameExists(gameVerified);
     return gameVerified;
   }
 
   async findPublisher(id: number) {
-    if (!id) {
-      throw new NotFoundException(`Game ${id} does not exist`);
-    }
+    this.checkGameExists(id);
 
-    const publisher = await this.knex
-      .select('p.name', 'p.siret', 'p.phone')
-      .from('publisher as p')
-      .join('games as g', 'p.id', '=', 'g.publisher')
-      .where('g.id', id);
+    const game = await this.modelClass.query().findById(id);
+    this.checkGameExists(game);
+    const publisher = await PublisherModel.query().findById(game.publisher);
+    if (!publisher) {
+      throw new NotFoundException(`No Publisher for Game ${id}`);
+    }
     return publisher;
   }
 
   async remove(id: number) {
-    if (!id) {
-      throw new NotFoundException(`Game ${id} does not exist`);
-    }
-    await this.knex.table('games').where('id', id).del();
-    return [];
+    this.checkGameExists(id);
+    await this.modelClass.query().delete().where({ id });
+    return { message: 'Game removed' };
   }
 }

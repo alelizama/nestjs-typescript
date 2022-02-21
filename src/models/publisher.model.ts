@@ -1,6 +1,10 @@
 import { IsNumber, IsNotEmpty, IsString } from 'class-validator';
 
-export class PublisherDto {
+import { BaseModel } from './base.model';
+
+export class PublisherModel extends BaseModel {
+  static tableName = 'publisher';
+
   @IsNotEmpty()
   @IsString()
   name: string;
