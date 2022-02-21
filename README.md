@@ -24,7 +24,9 @@
 
 ## Description
 
+Coding test NodeJs/Typescript
 [Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+
 
 ## Installation
 
@@ -36,15 +38,90 @@ $ npm install
 
 ```bash
 # development
+$ docker-compose -f docker-compose-database.yml up
 $ npm run start
 
-# watch mode
-$ npm run start:dev
-
-# production mode
-$ npm run start:prod
+# prod
+$ docker-compose up
 ```
 
+## Blueprint
+### Publisher
+
+#### Get all publishers
+```bash
+#GET
+/publisher
+```
+
+#### Get one publisher
+```bash
+#GET
+/publisher/:id
+```
+
+#### Create publisher
+```bash
+#POST
+/publisher
+body = { publisher }
+```
+
+#### Update publisher
+```bash
+#PUT
+/publisher/:id
+body = { publisher }
+```
+
+#### Remove publisher
+```bash
+#DELETE
+/publisher/:id
+```
+
+### Game
+The games having a release date older than 18
+months are going to be deleted.
+
+The games having a release date between 12 and 18 months are going to have discount of 20%.
+#### Get all games
+```bash
+#GET
+/game
+```
+
+#### Get one game
+```bash
+#GET
+/game/:id
+```
+
+#### Create game
+```bash
+#POST
+/game
+body = { game }
+```
+
+#### Update game
+```bash
+#PUT
+/game/:id
+body = { game }
+```
+
+#### Remove game
+```bash
+#DELETE
+/game/:id
+```
+
+#### Get publisher of game
+```bash
+#DELETE
+/game/:id/publisher
+```
 ## Test
 
 ```bash
@@ -61,12 +138,6 @@ $ npm run test:cov
 ## Support
 
 Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
-
-## Stay in touch
-
-- Author - [Kamil Myśliwiec](https://kamilmysliwiec.com)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
 
 ## License
 
